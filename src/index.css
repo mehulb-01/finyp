@@ -10,37 +10,37 @@
   --font-sans: "Stara", sans-serif;
   --font-heading: "Stara", sans-serif;
 
-  /* Global Color Re-mappings for Deep Emerald / Purple Aesthetic */
-  /* Blue becomes Emerald */
-  --color-blue-50: #ECFDF5;
-  --color-blue-100: #D1FAE5;
-  --color-blue-200: #A7F3D0;
-  --color-blue-300: #6EE7B7;
-  --color-blue-400: #34D399;
-  --color-blue-500: #10B981;
-  --color-blue-600: #059669;
-  --color-blue-700: #047857;
-  --color-blue-800: #065F46;
-  --color-blue-900: #064E3B;
+  /* Global Color Re-mappings for Deep Purple Aesthetic */
+  /* Blue becomes Purple (Primary Brand Color) */
+  --color-blue-50: #FAF5FF;
+  --color-blue-100: #F3E8FF;
+  --color-blue-200: #E9D5FF;
+  --color-blue-300: #D8B4FE;
+  --color-blue-400: #C084FC;
+  --color-blue-500: #A855F7;
+  --color-blue-600: #9333EA;
+  --color-blue-700: #7E22CE;
+  --color-blue-800: #6B21A8;
+  --color-blue-900: #581C87;
 
-  /* Indigo becomes Purple */
-  --color-indigo-50: #FAF5FF;
-  --color-indigo-100: #F3E8FF;
-  --color-indigo-200: #E9D5FF;
-  --color-indigo-300: #D8B4FE;
-  --color-indigo-400: #C084FC;
-  --color-indigo-500: #A855F7;
-  --color-indigo-600: #9333EA;
-  --color-indigo-700: #7E22CE;
-  --color-indigo-800: #6B21A8;
-  --color-indigo-900: #581C87;
+  /* Indigo becomes Fuchsia (Secondary Accent) */
+  --color-indigo-50: #FDF4FF;
+  --color-indigo-100: #FAE8FF;
+  --color-indigo-200: #F5D0FE;
+  --color-indigo-300: #F0ABFC;
+  --color-indigo-400: #E879F9;
+  --color-indigo-500: #D946EF;
+  --color-indigo-600: #C026D3;
+  --color-indigo-700: #A21CAF;
+  --color-indigo-800: #86198F;
+  --color-indigo-900: #701A75;
 
   /* Grays become ultra-dark purple-black background */
-  --color-gray-950: #030308;
-  --color-gray-900: #0A0A10;
-  --color-gray-800: #12121D;
-  --color-gray-700: #1E1E2C;
-  --color-gray-600: #2D2D40;
+  --color-gray-950: #05020B;
+  --color-gray-900: #0C0515;
+  --color-gray-800: #150A22;
+  --color-gray-700: #221235;
+  --color-gray-600: #301848;
 }
 
 @layer base {
@@ -64,11 +64,11 @@
   }
 
   .btn-gradient {
-    @apply relative overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all duration-300 shadow-[0_8px_20px_-5px_rgba(16,185,129,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-0.5 border border-white/10;
+    @apply relative overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all duration-300 shadow-[0_8px_20px_-5px_rgba(168,85,247,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(168,85,247,0.6)] hover:-translate-y-0.5 border border-white/10;
   }
   
   .card-gradient {
-    @apply bg-gradient-to-br from-gray-800/80 to-gray-900/60 backdrop-blur-xl border border-gray-700/50 shadow-xl hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)] hover:-translate-y-1 transition-all duration-300;
+    @apply bg-gradient-to-br from-gray-800/80 to-gray-900/60 backdrop-blur-xl border border-gray-700/50 shadow-xl hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.15)] hover:-translate-y-1 transition-all duration-300;
   }
 
   .card-gradient-dark {
