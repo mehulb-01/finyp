@@ -7,8 +7,8 @@ export default function DashboardLayout({ children }) {
       <Sidebar />
       
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Topbar */}
-        <header className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0 z-10">
+        {/* Topbar themed with premium glass aesthetics matching the Navbar */}
+        <header className="h-16 bg-[#0C061A]/80 backdrop-blur-xl border-b border-purple-500/20 shadow-[0_10px_50px_-10px_rgba(168,85,247,0.15)] flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0 z-10 transition-colors">
           <div className="flex items-center flex-1">
             <button className="lg:hidden mr-4 text-gray-400 hover:text-gray-200">
               <Menu className="h-6 w-6" />
