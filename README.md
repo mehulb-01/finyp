@@ -57,16 +57,3 @@ This project is divided into three main microservices:
 ### 1. Starting the AI Service
 The AI service handles the heavy lifting of image classification. Ensure you have your trained weights (`best_model_finetuned.pth`) placed in the `AI Model/` directory.
 
-```bash
-cd ai_service
-
-# Create a virtual environment (optional but recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-
-# Install required packages (assuming a requirements.txt exists)
-pip install fastapi uvicorn torch torchvision pillow python-multipart
-
-# Start the server
-python main.py
-# The AI service will run on http://localhost:8000
