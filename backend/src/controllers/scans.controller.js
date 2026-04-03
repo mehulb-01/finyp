@@ -17,7 +17,7 @@ const analyzeScan = catchAsync(async (req, res) => {
     throw error;
   }
 
-  const { patientName = 'Unknown Patient', patientAge = 50, patientGender = 'Not Specified' } = req.body;
+  const { patientType = 'new', patientId: existingId = '', patientName = 'Unknown Patient', patientAge = 50, patientGender = 'Not Specified' } = req.body;
 
   // Create form data to forward to Python FastAPI Microservice
   const formData = new FormData();
@@ -37,24 +37,44 @@ const analyzeScan = catchAsync(async (req, res) => {
     const tScore = diagnosis === 'Normal' ? -0.5 : diagnosis === 'Osteopenia' ? -1.8 : -2.8;
     const status = diagnosis === 'Normal' ? 'Normal' : diagnosis === 'Osteopenia' ? 'Moderate' : 'High Risk';
 
-    // Auto-create Patient
-    const patientId = `P-${Math.floor(Math.random() * 9000) + 1000}`;
-    const newPatient = {
-      id: patientId,
-      name: patientName,
-      age: parseInt(patientAge),
-      gender: patientGender,
-      lastVisit: new Date().toISOString().split('T')[0],
-      status: status
-    };
-    db.patients.push(newPatient);
+    let finalPatientId = '';
+    let finalPatientName = '';
 
-    // Auto-create Scan
+    // Handle Patient Record Routing
+    if (patientType === 'existing') {
+      const existingPatient = db.patients.find(p => p.id === existingId);
+      if (!existingPatient) {
+        throw new Error(`Patient ID ${existingId} not found in database. Please check the ID or create a new patient.`);
+      }
+      finalPatientId = existingPatient.id;
+      finalPatientName = existingPatient.name;
+      // Update lastVisit
+      existingPatient.lastVisit = new Date().toISOString().split('T')[0];
+      // Elevate status if new scan is worse
+      if (status === 'High Risk' || (status === 'Moderate' && existingPatient.status === 'Normal')) {
+        existingPatient.status = status;
+      }
+    } else {
+      // Auto-create New Patient
+      finalPatientId = `P-${Math.floor(Math.random() * 9000) + 1000}`;
+      finalPatientName = patientName;
+      const newPatient = {
+        id: finalPatientId,
+        name: finalPatientName,
+        age: parseInt(patientAge),
+        gender: patientGender,
+        lastVisit: new Date().toISOString().split('T')[0],
+        status: status
+      };
+      db.patients.push(newPatient);
+    }
+
+    // Auto-create Scan Record
     const scanId = `SCAN-${Math.floor(Math.random() * 9000) + 1000}`;
     const newScan = {
       id: scanId,
-      patientId: newPatient.id,
-      patientName: newPatient.name,
+      patientId: finalPatientId,
+      patientName: finalPatientName,
       scanType: 'DEXA AP Spine',
       date: new Date().toISOString(),
       tScore: tScore,
@@ -70,7 +90,7 @@ const analyzeScan = catchAsync(async (req, res) => {
         filename: req.file.originalname,
         diagnosis: diagnosis,
         confidence: confidence,
-        patientId: patientId,
+        patientId: finalPatientId, // FIXED: was patientId which resulted in ReferenceError
         scanId: scanId,
         message: 'Image analyzed successfully and records created.'
       }
