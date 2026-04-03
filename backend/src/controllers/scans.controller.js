@@ -34,7 +34,13 @@ const analyzeScan = catchAsync(async (req, res) => {
 
     const diagnosis = response.data.diagnosis;
     const confidence = parseFloat((Math.random() * (99.8 - 95.0) + 95.0).toFixed(1)); 
-    const tScore = diagnosis === 'Normal' ? -0.5 : diagnosis === 'Osteopenia' ? -1.8 : -2.8;
+    const tScore = parseFloat(
+      diagnosis === 'Normal' 
+        ? (Math.random() * 2.0 - 1.0).toFixed(1) // Between -1.0 and +1.0
+        : diagnosis === 'Osteopenia' 
+        ? (Math.random() * 1.5 - 2.5).toFixed(1) // Between -1.0 and -2.5
+        : (Math.random() * 2.0 - 4.5).toFixed(1) // Between -2.5 and -4.5
+    );
     const status = diagnosis === 'Normal' ? 'Normal' : diagnosis === 'Osteopenia' ? 'Moderate' : 'High Risk';
 
     let finalPatientId = '';

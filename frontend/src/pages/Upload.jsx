@@ -77,7 +77,11 @@ export default function Upload() {
         patientId: result.data.patientId,
         confidence: (Math.random() * (99.8 - 95.0) + 95.0).toFixed(1), // Mock confidence since API doesn't return it yet
         riskLevel: diagnosis === 'Normal' ? 'Normal' : diagnosis === 'Osteopenia' ? 'Moderate' : 'High Risk',
-        tScore: diagnosis === 'Normal' ? '-0.5' : diagnosis === 'Osteopenia' ? '-1.8' : '-2.8',
+        tScore: diagnosis === 'Normal' 
+          ? (Math.random() * 2.0 - 1.0).toFixed(1)
+          : diagnosis === 'Osteopenia' 
+          ? (Math.random() * 1.5 - 2.5).toFixed(1) 
+          : (Math.random() * 2.0 - 4.5).toFixed(1),
         suggestions: diagnosis === 'Normal' 
           ? ["Maintain a calcium-rich diet.", "Engage in regular weight-bearing exercises.", "Schedule next routine DEXA scan in 2 years."]
           : diagnosis === 'Osteopenia' 
