@@ -54,17 +54,48 @@ export default function HeroSection() {
         <span>We <span className="font-serif italic font-light tracking-normal text-gray-200">Diagnose</span> Scans That</span>
         <span className="flex items-center justify-center gap-4 flex-wrap mt-2">
           Drive
-          <div className="flex items-center gap-[-12px] bg-gray-100 rounded-full p-2 translate-y-1 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <motion.div 
+            layout
+            whileHover="hover"
+            initial="rest"
+            animate="rest"
+            className="flex items-center bg-gray-100 rounded-full p-2 translate-y-1 mx-2 cursor-pointer relative shadow-[0_0_20px_rgba(168,85,247,0.15)] overflow-hidden"
+          >
+            {/* Soft hover glow */}
+            <motion.div
+              layout
+              variants={{ rest: { opacity: 0.3, scale: 0.9 }, hover: { opacity: 0.8, scale: 1.05 } }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl -z-10 pointer-events-none"
+            />
+            
+            <motion.div 
+              layout
+              variants={{ rest: { rotate: 0 }, hover: { rotate: 180 } }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.1)] z-10 relative border border-gray-100 shrink-0"
+            >
               <Target className="w-6 h-6 text-purple-600" />
-            </div>
-            <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-sm -ml-4 z-10">
-              <Brain className="w-6 h-6 text-white" />
-            </div>
-            <div className="w-12 h-12 rounded-full bg-gray-900 flex items-center justify-center shadow-sm -ml-4 z-20 border-2 border-white text-white font-serif italic text-lg font-bold">
+            </motion.div>
+            
+            <motion.div 
+              layout
+              variants={{ rest: { marginLeft: -16, scale: 1 }, hover: { marginLeft: 8, scale: 1.15 } }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-400 text-white flex items-center justify-center shadow-[0_4px_16px_rgba(168,85,247,0.4)] z-20 relative border border-purple-300/30 shrink-0"
+            >
+              <Brain className="w-6 h-6" />
+            </motion.div>
+
+            <motion.div 
+              layout
+              variants={{ rest: { marginLeft: -16, scale: 1 }, hover: { marginLeft: 8, scale: 1.1 } }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="w-12 h-12 rounded-full bg-gray-900 border-2 border-white text-white flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.2)] z-30 relative font-serif italic text-lg font-bold shrink-0"
+            >
               AI
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
           <span className="font-serif italic font-light tracking-normal text-gray-200">Results</span>
         </span>
       </motion.h1>
