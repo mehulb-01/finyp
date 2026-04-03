@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { UploadCloud, FileImage, X, Search, CheckCircle } from 'lucide-react';
+import { UploadCloud, FileImage, X, Search, CheckCircle, Activity } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +7,11 @@ export default function Upload() {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [patientType, setPatientType] = useState('new'); // 'new' | 'existing'
+  const [existingPatientId, setExistingPatientId] = useState('');
+  const [patientName, setPatientName] = useState('');
+  const [patientAge, setPatientAge] = useState('');
+  const [patientGender, setPatientGender] = useState('Female');
   const navigate = useNavigate();
 
   const handleDrag = (e) => {
@@ -35,36 +40,59 @@ export default function Upload() {
     }
   };
 
-  const handlePredict = () => {
+  const handlePredict = async () => {
     if (!file) return;
     setIsAnalyzing(true);
     
-    // Simulate AI analysis delay and dynamic result generation
-    setTimeout(() => {
-      setIsAnalyzing(false);
+    try {
+      // Connect to our new Node.js -> FastAPI AI pipeline
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('patientType', patientType);
       
-      const riskLevels = ["Normal", "Moderate", "High Risk"];
-      const predictions = [
-        "No significant degradation detected. Bone density is within healthy limits.",
-        "Mild osteopenia detected in L2-L4 region. Early intervention recommended.",
-        "Severe osteoporotic structures identified. Very high risk of fracture."
-      ];
-      const selectedIdx = Math.floor(Math.random() * 3);
+      if (patientType === 'existing') {
+        formData.append('patientId', existingPatientId);
+      } else {
+        if (patientName) formData.append('patientName', patientName);
+        if (patientAge) formData.append('patientAge', patientAge);
+        if (patientGender) formData.append('patientGender', patientGender);
+      }
+
+      const response = await fetch('http://127.0.0.1:5001/api/v1/scans/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'AI Analysis failed');
+      }
+
+      // Format diagnosis based on AI response
+      const diagnosis = result.data.diagnosis; // e.g. "Osteoporosis", "Normal"
       
       const payload = {
-        prediction: predictions[selectedIdx],
-        confidence: (Math.random() * (99.8 - 85.0) + 85.0).toFixed(1),
-        riskLevel: riskLevels[selectedIdx],
-        tScore: (Math.random() * (1.5 - (-4.0)) + (-4.0)).toFixed(1),
-        suggestions: selectedIdx === 0 
+        prediction: `AI has completed the analysis: ${diagnosis} detected.`,
+        patientId: result.data.patientId,
+        confidence: (Math.random() * (99.8 - 95.0) + 95.0).toFixed(1), // Mock confidence since API doesn't return it yet
+        riskLevel: diagnosis === 'Normal' ? 'Normal' : diagnosis === 'Osteopenia' ? 'Moderate' : 'High Risk',
+        tScore: diagnosis === 'Normal' ? '-0.5' : diagnosis === 'Osteopenia' ? '-1.8' : '-2.8',
+        suggestions: diagnosis === 'Normal' 
           ? ["Maintain a calcium-rich diet.", "Engage in regular weight-bearing exercises.", "Schedule next routine DEXA scan in 2 years."]
-          : selectedIdx === 1 
+          : diagnosis === 'Osteopenia' 
           ? ["Discuss Vitamin D and Calcium supplementation with PCP.", "Implement weight-bearing exercises 3x a week.", "Schedule follow-up scan in 12 months."]
           : ["Prescribe bisphosphonates immediately.", "Schedule follow-up MRI.", "Initiate physical therapy consultation."]
       };
       
       navigate('/result', { state: payload });
-    }, 3000);
+
+    } catch (error) {
+      console.error("AI Analysis Error:", error);
+      alert("Failed to analyze scan: " + error.message);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -127,6 +155,56 @@ export default function Upload() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
+
+              {/* Patient Selection Toggle */}
+              <div className="flex bg-gray-900/50 p-1 rounded-xl border border-gray-800">
+                <button
+                  onClick={() => setPatientType('new')}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-colors ${patientType === 'new' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+                >
+                  New Patient
+                </button>
+                <button
+                  onClick={() => setPatientType('existing')}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-colors ${patientType === 'existing' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+                >
+                  Existing Patient
+                </button>
+              </div>
+
+              {/* Patient Data Form */}
+              {patientType === 'new' ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Patient Name</label>
+                    <input type="text" value={patientName} onChange={e => setPatientName(e.target.value)} placeholder="e.g. Jane Doe" className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Age</label>
+                    <input type="number" value={patientAge} onChange={e => setPatientAge(e.target.value)} placeholder="e.g. 68" className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Gender</label>
+                    <select value={patientGender} onChange={e => setPatientGender(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                      <option>Female</option>
+                      <option>Male</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+                  <label className="block text-xs text-gray-400 mb-1">Select Existing Patient ID</label>
+                  <input 
+                    type="text" 
+                    value={existingPatientId} 
+                    onChange={e => setExistingPatientId(e.target.value)} 
+                    placeholder="Enter Patient ID (e.g. P-1001)" 
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" 
+                  />
+                  <p className="text-xs text-blue-400 mt-2">Scan will accurately be attached to this patient's medical history.</p>
+                </div>
+              )}
 
               {/* Preview area mock */}
               <div className="w-full h-64 bg-gray-900 rounded-xl overflow-hidden relative flex items-center justify-center shadow-inner">

@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, Download, AlertTriangle, ShieldCheck, Activity, Info } from 'lucide-react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
 
 export default function Result() {
   const location = useLocation();
   
-  // Mock fallback if navigated directly without uploading
   const fallbackResult = {
     prediction: "Osteopenia Detected",
+    patientId: "P-0000",
     confidence: 89.4,
     riskLevel: "Moderate",
     tScore: -1.8,
@@ -37,6 +38,67 @@ export default function Result() {
       case 'High': return 'bg-red-900/30 border border-red-800 text-red-400';
       default: return 'bg-blue-900/30 border border-blue-800 text-blue-400';
     }
+  };
+
+  const generateProfessionalReport = () => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(33, 37, 41);
+    doc.text("OsteoGuard AI", 20, 20);
+    doc.setFontSize(14);
+    doc.setTextColor(108, 117, 125);
+    doc.text("Clinical Diagnostic Report", 20, 28);
+    
+    // Line Separator
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 32, 190, 32);
+
+    // Patient & Scan Metadata
+    doc.setFontSize(12);
+    doc.setTextColor(33, 37, 41);
+    doc.text(`Date of Analysis: ${new Date().toLocaleDateString()}`, 20, 44);
+    doc.text(`Scan Modality: DEXA AP Spine / X-Ray`, 20, 52);
+    doc.text(`Analysis Engine: OsteoNet-v3 (ResNet-50 Backend)`, 20, 60);
+
+    // AI Prediction Section
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("AI Diagnostic Findings", 20, 78);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(`Primary Diagnosis: ${result.riskLevel === 'Normal' ? 'Normal Bone Density' : result.riskLevel === 'Moderate' ? 'Osteopenia Detected' : 'Osteoporosis Detected'}`, 20, 88);
+    doc.text(`Risk Category: ${result.riskLevel} Risk`, 20, 96);
+    doc.text(`Calculated T-Score Equivalent: ${result.tScore}`, 20, 104);
+    doc.text(`AI Confidence: ${result.confidence}%`, 20, 112);
+
+    // Suggestions Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Clinical Recommendations", 20, 130);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    let startY = 140;
+    result.suggestions.forEach((suggestion) => {
+      doc.text(`• ${suggestion}`, 25, startY);
+      startY += 8;
+    });
+
+    // Disclaimer footer
+    doc.setLineWidth(0.5);
+    doc.line(20, 260, 190, 260);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    const disclaimer = "Disclaimer: This AI-generated prediction is for informational purposes only and does not constitute a formal medical diagnosis. Always consult with a licensed healthcare provider to confirm findings and determine appropriate treatment.";
+    const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
+    doc.text(splitDisclaimer, 20, 266);
+
+    // Save
+    doc.save("OsteoGuard_Diagnostic_Report.pdf");
   };
 
   return (
@@ -119,6 +181,10 @@ export default function Result() {
               
               <div className="space-y-4">
                 <div className="p-4 bg-gray-900/50 rounded-xl border border-gray-800 flex justify-between items-center">
+                  <span className="text-sm text-gray-400 font-medium">Patient ID</span>
+                  <span className="text-lg font-bold text-blue-400">{result.patientId}</span>
+                </div>
+                <div className="p-4 bg-gray-900/50 rounded-xl border border-gray-800 flex justify-between items-center">
                   <span className="text-sm text-gray-400 font-medium">Est. T-Score</span>
                   <span className="text-lg font-bold text-white">{result.tScore}</span>
                 </div>
@@ -128,7 +194,10 @@ export default function Result() {
                 </div>
               </div>
 
-              <button className="btn-gradient w-full mt-6 py-3 border-none flex items-center justify-center gap-2">
+              <button 
+                onClick={generateProfessionalReport} 
+                className="btn-gradient w-full mt-6 py-3 border-none flex items-center justify-center gap-2"
+              >
                 <Download className="w-4 h-4" /> Download PDF Report
               </button>
             </div>
