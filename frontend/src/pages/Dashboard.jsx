@@ -4,48 +4,45 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 
 export default function Dashboard() {
-  // Dynamic State
-  const [totalScans, setTotalScans] = useState(1284);
-  const [activePatients, setActivePatients] = useState(892);
-  const [confidence, setConfidence] = useState(96.4);
-  const [recentHistory, setRecentHistory] = useState([
-    { id: "SCAN-0982", patient: "Emma Thompson", date: "2 hours ago", status: "Moderate", score: "-1.8" },
-    { id: "SCAN-0981", patient: "Michael Chen", date: "4 hours ago", status: "Normal", score: "-0.5" },
-    { id: "SCAN-0980", patient: "Sarah Williams", date: "Yesterday", status: "High Risk", score: "-2.7" },
-    { id: "SCAN-0979", patient: "James Wilson", date: "Yesterday", status: "Normal", score: "-0.9" },
-    { id: "SCAN-0978", patient: "Maria Garcia", date: "2 days ago", status: "Moderate", score: "-1.5" }
-  ]);
+  const [totalScans, setTotalScans] = useState(0);
+  const [activePatients, setActivePatients] = useState(0);
+  const [confidence, setConfidence] = useState(0);
+  const [recentHistory, setRecentHistory] = useState([]);
+  const [highRiskCount, setHighRiskCount] = useState(0);
 
-  // Simulate live data updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTotalScans(prev => prev + Math.floor(Math.random() * 3));
-      setActivePatients(prev => prev + (Math.random() > 0.6 ? 1 : 0));
-      setConfidence(prev => {
-        const drift = (Math.random() * 0.4 - 0.2);
-        return Math.min(Math.max(prev + drift, 92.0), 99.8);
-      });
-      
-      // Occasionally simulate a new scan appearing
-      if (Math.random() > 0.8) {
-        setRecentHistory(prev => {
-          const newId = `SCAN-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-          const newStatus = ["Normal", "Moderate", "High Risk"][Math.floor(Math.random() * 3)];
-          const newScore = (Math.random() * (1.5 - (-4.0)) + (-4.0)).toFixed(1);
+    const fetchOverview = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:5001/api/v1/overview');
+        const data = await res.json();
+        if (data.status === 'success') {
+          setTotalScans(data.data.recentScans);
+          setActivePatients(data.data.totalPatients);
+          setConfidence(parseFloat(data.data.averageConfidence));
+          setHighRiskCount(data.data.criticalAlerts);
           
-          return [
-            { id: newId, patient: "Processing...", date: "Just now", status: newStatus, score: newScore },
-            ...prev.slice(0, 4)
-          ];
-        });
+          const history = data.data.recentHistory.map(scan => ({
+            id: scan.id,
+            patient: scan.patientName,
+            date: new Date(scan.date).toLocaleString(),
+            status: scan.status,
+            score: scan.tScore
+          }));
+          setRecentHistory(history);
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
       }
-    }, 3500);
+    };
+    
+    fetchOverview();
+    const interval = setInterval(fetchOverview, 5000);
     return () => clearInterval(interval);
   }, []);
 
   const stats = [
     { label: "Total Scans Analyzed", value: totalScans.toLocaleString(), change: "+12.5%", isPositive: true, icon: <Activity /> },
-    { label: "High Risk Detected", value: Math.floor(totalScans * 0.26).toLocaleString(), change: "+4.1%", isPositive: false, icon: <Bone /> },
+    { label: "High Risk Detected", value: highRiskCount.toLocaleString(), change: "+4.1%", isPositive: false, icon: <Bone /> },
     { label: "Active Patients", value: activePatients.toLocaleString(), change: "+8.2%", isPositive: true, icon: <Users /> },
     { label: "Avg. Confidence", value: confidence.toFixed(1) + "%", change: "+0.3%", isPositive: true, icon: <FileText /> }
   ];

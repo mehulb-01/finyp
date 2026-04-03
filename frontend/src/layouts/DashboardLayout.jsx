@@ -1,7 +1,12 @@
 import { Bell, Search, Menu } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 
 export default function DashboardLayout({ children }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
   return (
     <div className="flex h-screen bg-gray-950 overflow-hidden font-sans">
       <Sidebar />
@@ -19,8 +24,15 @@ export default function DashboardLayout({ children }) {
               </div>
               <input 
                 type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchQuery.trim()) {
+                    navigate(`/patient/${searchQuery.trim()}`);
+                  }
+                }}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg bg-gray-800 focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors sm:text-sm text-gray-100 placeholder-gray-500" 
-                placeholder="Search patient ID, name or scan..." 
+                placeholder="Search Patient ID (e.g. P-1001), name or scan... (Press Enter to search)" 
               />
             </div>
           </div>

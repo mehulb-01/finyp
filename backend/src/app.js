@@ -30,11 +30,11 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || '*'
 }));
 
-// limit repeated failed requests
+// limit repeated failed requests (Significantly increased for local dashboard polling)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  max: 10000, // Changed from 100 to 10000 to prevent Dashboard live-polling from crashing it
+  message: { status: 'error', message: 'Too many requests, please try again later.' }
 });
 app.use('/api', limiter);
 
