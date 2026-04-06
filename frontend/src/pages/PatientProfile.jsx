@@ -16,7 +16,7 @@ export default function PatientProfile() {
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:5001/api/v1/patients/${id}`);
+        const res = await fetch(`/api/v1/patients/${id}`);
         const data = await res.json();
         if (data.status === 'success') {
           setPatient(data.data);
@@ -46,7 +46,7 @@ export default function PatientProfile() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`http://127.0.0.1:5001/api/v1/patients/${patient.id}`, {
+      const res = await fetch(`/api/v1/patients/${patient.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm)

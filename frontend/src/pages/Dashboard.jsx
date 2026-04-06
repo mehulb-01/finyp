@@ -13,7 +13,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchOverview = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:5001/api/v1/overview');
+        const res = await fetch('/api/v1/overview');
         const data = await res.json();
         if (data.status === 'success') {
           setTotalScans(data.data.recentScans);

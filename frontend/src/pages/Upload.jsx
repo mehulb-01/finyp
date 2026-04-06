@@ -58,7 +58,7 @@ export default function Upload() {
         if (patientGender) formData.append('patientGender', patientGender);
       }
 
-      const response = await fetch('http://127.0.0.1:5001/api/v1/scans/analyze', {
+      const response = await fetch('/api/v1/scans/analyze', {
         method: 'POST',
         body: formData,
       });

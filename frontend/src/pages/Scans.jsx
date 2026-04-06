@@ -8,7 +8,7 @@ export default function Scans() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5001/api/v1/scans')
+    fetch('/api/v1/scans')
       .then(res => res.json())
       .then(data => {
         if (data && data.status === 'success' && Array.isArray(data.data)) {
