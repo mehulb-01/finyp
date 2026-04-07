@@ -1,4 +1,4 @@
-# 🦴 OsteoGuard-AI
+# OsteoGuard-AI
 
 <div align="center">
   <p><strong>An Intelligent Clinical Support System for Bone Health Diagnostics</strong></p>
