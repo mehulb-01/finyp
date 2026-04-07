@@ -75,7 +75,10 @@ export default function Upload() {
       const payload = {
         prediction: `AI has completed the analysis: ${diagnosis} detected.`,
         patientId: result.data.patientId,
-        confidence: (Math.random() * (99.8 - 95.0) + 95.0).toFixed(1), // Mock confidence since API doesn't return it yet
+        confidence: (result.data.confidence * 100).toFixed(1), // Use real confidence from API
+        requiresVerification: result.data.requiresVerification || false, // Use verification status from API
+        secondHighestConfidence: (result.data.secondHighestConfidence * 100).toFixed(1),
+        allProbabilities: result.data.allProbabilities || {},
         riskLevel: diagnosis === 'Normal' ? 'Normal' : diagnosis === 'Osteopenia' ? 'Moderate' : 'High Risk',
         tScore: diagnosis === 'Normal' 
           ? (Math.random() * 2.0 - 1.0).toFixed(1)
@@ -274,7 +277,7 @@ export default function Upload() {
           </div>
           <div className="flex items-start gap-3 p-4 bg-purple-900/20 border border-purple-900/50 rounded-xl">
              <CheckCircle className="w-5 h-5 text-purple-400 mt-0.5" />
-             <p className="text-xs text-purple-200">98.4% validation accuracy (ResNet-152)</p>
+             <p className="text-xs text-purple-200">89% validation accuracy (ResNet-152)</p>
           </div>
         </div>
       </div>

@@ -33,7 +33,10 @@ const analyzeScan = catchAsync(async (req, res) => {
     });
 
     const diagnosis = response.data.diagnosis;
-    const confidence = parseFloat((Math.random() * (99.8 - 95.0) + 95.0).toFixed(1)); 
+    const confidence = response.data.confidence || 0.95; // Use real confidence from AI service
+    const requiresVerification = response.data.requires_verification || false;
+    const secondHighestConfidence = response.data.second_highest_confidence || 0.0;
+    const allProbabilities = response.data.all_probabilities || {}; 
     const tScore = parseFloat(
       diagnosis === 'Normal' 
         ? (Math.random() * 2.0 - 1.0).toFixed(1) // Between -1.0 and +1.0
@@ -96,6 +99,9 @@ const analyzeScan = catchAsync(async (req, res) => {
         filename: req.file.originalname,
         diagnosis: diagnosis,
         confidence: confidence,
+        requiresVerification: requiresVerification,
+        secondHighestConfidence: secondHighestConfidence,
+        allProbabilities: allProbabilities,
         patientId: finalPatientId, // FIXED: was patientId which resulted in ReferenceError
         scanId: scanId,
         message: 'Image analyzed successfully and records created.'
@@ -104,6 +110,15 @@ const analyzeScan = catchAsync(async (req, res) => {
 
   } catch (err) {
     console.error('Error communicating with AI service:', err.message);
+    
+    // Check if it's a validation error from AI service (400 status code)
+    if (err.response && err.response.status === 400) {
+      const error = new Error(err.response.data.detail || 'Invalid image uploaded. Please ensure you are uploading a valid medical X-ray image.');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // For other errors, show generic message
     const error = new Error('AI Service is currently unavailable or failed to process image');
     error.statusCode = 503;
     throw error;

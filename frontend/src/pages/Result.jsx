@@ -22,6 +22,33 @@ export default function Result() {
 
   const result = location.state || fallbackResult;
 
+  const getAlternativeDiagnosis = (prediction, allProbabilities) => {
+    if (!allProbabilities || Object.keys(allProbabilities).length === 0) {
+      return "another condition";
+    }
+    
+    // Extract the main diagnosis from prediction
+    let mainDiagnosis = "Normal";
+    if (prediction.includes("Osteopenia")) mainDiagnosis = "Osteopenia";
+    else if (prediction.includes("Osteoporosis")) mainDiagnosis = "Osteoporosis";
+    
+    // Find the second highest probability
+    const sortedProbs = Object.entries(allProbabilities)
+      .sort(([,a], [,b]) => b - a)
+      .map(([diagnosis]) => diagnosis);
+    
+    // Return the second highest (or third if main is first)
+    if (sortedProbs[0] === mainDiagnosis && sortedProbs[1]) {
+      return sortedProbs[1];
+    } else if (sortedProbs[1] === mainDiagnosis && sortedProbs[2]) {
+      return sortedProbs[2];
+    } else if (sortedProbs[0] !== mainDiagnosis) {
+      return sortedProbs[0];
+    }
+    
+    return "another condition";
+  };
+
   const getStatusColor = (level) => {
     switch(level) {
       case 'Normal': return 'text-green-500';
@@ -141,6 +168,34 @@ export default function Result() {
                   />
                 </div>
               </div>
+
+              {/* Verification Warning */}
+              {result.requiresVerification && (
+                <div className="mb-6 bg-yellow-900/20 rounded-2xl p-4 border border-yellow-800/50 flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h5 className="font-semibold text-yellow-300 text-sm mb-1">Verification Required</h5>
+                    <p className="text-yellow-200/80 text-xs leading-relaxed">
+                      Moderate confidence detected. Results should be verified by a healthcare professional for accurate diagnosis.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Alternative Possibility */}
+              {result.secondHighestConfidence && result.secondHighestConfidence > 20 && (
+                <div className="mb-6 bg-blue-900/20 rounded-2xl p-4 border border-blue-800/50">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h5 className="font-semibold text-blue-300 text-sm mb-1">Alternative Possibility</h5>
+                      <p className="text-blue-200/80 text-xs leading-relaxed">
+                        There's a {result.secondHighestConfidence}% chance this could be {getAlternativeDiagnosis(result.prediction, result.allProbabilities)}. Consider this possibility in clinical assessment.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800">
                 <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
