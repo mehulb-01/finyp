@@ -1,0 +1,12 @@
+{
+  "name": "osteoguard-ai",
+  "version": "1.0.0",
+  "description": "OsteoGuard-AI - Intelligent Clinical Support System for Bone Health Diagnostics",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "postbuild": "echo 'Build completed successfully'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
