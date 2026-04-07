@@ -21,4 +21,7 @@ app.get('/', (req, res) => {
   });
 });
 
-module.exports = app;
+// Export for Vercel
+module.exports = (req, res) => {
+  app(req, res);
+};
